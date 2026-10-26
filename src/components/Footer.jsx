@@ -25,7 +25,7 @@ export default function Footer() {
         }}>
           {/* Brand info with interactive sprite */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', textAlign: 'left' }}>
-            <InteractiveSprite height={36} />
+            <InteractiveSprite size={44} />
             <div>
               <div style={{
                 fontFamily: 'var(--font-mono)',

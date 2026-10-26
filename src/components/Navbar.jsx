@@ -13,7 +13,7 @@ export default function Navbar() {
       <div className="header-inner">
         {/* Logo and Domain */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <InteractiveSprite height={36} />
+          <InteractiveSprite size={36} />
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span className="brand-title">

@@ -1,0 +1,92 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f6f4ed" />
+  <title>Pixel Pal — Smooth Interactive Mascot</title>
+  <link rel="stylesheet" href="mascot.css" />
+  <script defer src="mascot.js"></script>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div class="brand"><span class="brand-badge" aria-hidden="true">✳</span> pixel pal</div>
+      <div class="meta">SMOOTH INTERACTIVE MASCOT · VERSION 2.0</div>
+    </header>
+    <section>
+      <div class="eyebrow">Smoother transitions, stable sprite size</div>
+      <h1>Your mascot, now with<br />proper in-between motion.</h1>
+      <p class="lede">This version keeps the mascot anchored to one shared canvas and uses short frame sequences for each interaction. That removes the sudden size pops and makes hover, click, double-click, and rapid-click reactions feel much smoother.</p>
+    </section>
+
+    <section class="layout">
+      <div class="playground">
+        <div class="toolbar">
+          <span class="pill">● Interactive playground</span>
+          <div class="lights" aria-hidden="true"><span></span><span></span><span></span></div>
+        </div>
+        <div class="zone">
+          <div class="ground-shadow" aria-hidden="true"></div>
+          <div class="pixel-mascot" id="my-mascot" data-asset-root="assets" data-status-target="#mascot-status" style="--flip:1;">
+            <button class="pixel-mascot__button" type="button" aria-label="Interact with Pixel Pal. Single click to jump, double click for surprise, rapid clicks to celebrate.">
+              <span class="pixel-mascot__flip">
+                <span class="pixel-mascot__stage">
+                  <img class="pixel-mascot__sprite" src="assets/idle.png" alt="" draggable="false" />
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
+        <div class="footbar">
+          <div class="status"><span class="pip"></span><span id="mascot-status" role="status" aria-live="polite">Idle · floating</span></div>
+          <div class="caption">Hover, click, double-click, or spam-click it.</div>
+        </div>
+      </div>
+
+      <aside class="controls">
+        <h2>Try an action ✦</h2>
+        <p>The mascot can still be controlled manually, but the motion now uses more in-between frames and a stable sprite anchor.</p>
+        <div class="action-grid">
+          <button class="action" data-action="wave"><span>👋</span>Wave</button>
+          <button class="action" data-action="jump"><span>✨</span>Jump</button>
+          <button class="action" data-action="surprise"><span>😮</span>Surprised</button>
+          <button class="action" data-action="cheer"><span>🎉</span>Celebrate</button>
+          <button class="action" data-action="wink"><span>😉</span>Wink</button>
+          <button class="action" data-action="spin"><span>🌀</span>Spin</button>
+          <button class="action" data-action="flip"><span>↔️</span>Mirror flip</button>
+          <button class="action" data-action="idle"><span>☁️</span>Reset to idle</button>
+        </div>
+        <div class="divider"></div>
+        <h2 style="font-size:15px;margin-bottom:16px">Interaction map</h2>
+        <ul class="info">
+          <li><kbd>Hover</kbd> loops a soft wave animation</li>
+          <li><kbd>1 click</kbd> jump with squash and landing</li>
+          <li><kbd>2 clicks</kbd> surprised pop reaction</li>
+          <li><kbd>3+ clicks</kbd> celebration sequence</li>
+          <li><kbd>Tab + Enter</kbd> keyboard accessible</li>
+        </ul>
+      </aside>
+    </section>
+
+    <div class="footer">
+      <span>Stable canvas · smoother sequences · no external libraries</span>
+      <span>Built with <strong>HTML + CSS + JavaScript</strong></span>
+    </div>
+  </main>
+
+  <script>
+    document.querySelectorAll('[data-action]').forEach(button => {
+      button.addEventListener('click', () => {
+        const mascot = document.querySelector('#my-mascot');
+        const api = mascot.__pixelMascot || window.initPixelMascot(mascot);
+        const action = button.dataset.action;
+        if (action === 'flip') api.flip();
+        else if (action === 'idle') api.reset();
+        else api.play(action);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -282,6 +282,19 @@
   }
 }
 
+/* Hide the 4 mode button icons only in mobile version */
+@media (max-width: 640px) {
+  .mode-tab-icon {
+    display: none !important;
+  }
+
+  .mode-tab-btn {
+    padding: 6px 10px !important;
+    font-size: 0.76rem !important;
+    gap: 0 !important;
+  }
+}
+
 @media (max-width: 480px) {
   .header-inner {
     padding: 0 0.85rem;

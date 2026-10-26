@@ -759,6 +759,7 @@ export default function InteractiveVisualCanvas() {
               <button
                 key={tab.id}
                 onClick={() => setActiveMode(tab.id)}
+                className="mode-tab-btn"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -770,9 +771,10 @@ export default function InteractiveVisualCanvas() {
                   color: active ? '#FFFFFF' : 'var(--text-secondary)',
                   backgroundColor: active ? 'var(--claude-terracotta)' : 'transparent',
                   transition: 'all 0.15s ease',
+                  whiteSpace: 'nowrap',
                 }}
               >
-                <Icon size={14} />
+                <Icon size={14} className="mode-tab-icon" />
                 <span>{tab.label}</span>
               </button>
             );

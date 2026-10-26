@@ -210,6 +210,22 @@ export default function InteractiveVisualCanvas() {
     return () => window.removeEventListener('resize', handleResize);
   }, [activeMode, initSimulation]);
 
+  // Reset simulation with proper logical viewport dimensions
+  const handleReset = useCallback(() => {
+    const container = containerRef.current;
+    let width = stateRef.current.width;
+    let height = stateRef.current.height;
+    if (container) {
+      const rect = container.getBoundingClientRect();
+      if (rect.width > 0) {
+        width = rect.width;
+        height = Math.max(260, Math.min(rect.width * 0.54, 460));
+      }
+    }
+    initSimulation(activeMode, width, height);
+  }, [activeMode, initSimulation]);
+
+
   // Mouse / Pointer handlers
   const handlePointerMove = (e) => {
     const canvas = canvasRef.current;
@@ -868,10 +884,7 @@ export default function InteractiveVisualCanvas() {
           </button>
 
           <button
-            onClick={() => {
-              const canvas = canvasRef.current;
-              if (canvas) initSimulation(activeMode, canvas.width, canvas.height);
-            }}
+            onClick={handleReset}
             style={{
               padding: '6px 10px',
               borderRadius: 'var(--radius-sm)',
@@ -883,7 +896,8 @@ export default function InteractiveVisualCanvas() {
               gap: '4px',
               fontSize: '0.78rem',
             }}
-            title="Reset simulation parameters"
+            title="Reset simulation"
+            aria-label="Reset simulation"
           >
             <RotateCcw size={13} />
             <span>Reset</span>
@@ -981,12 +995,9 @@ export default function InteractiveVisualCanvas() {
             </button>
 
             <button
-              onClick={() => {
-                const canvas = canvasRef.current;
-                if (canvas) initSimulation(activeMode, canvas.width, canvas.height);
-              }}
+              onClick={handleReset}
               className="visual-mobile-action-btn"
-              title="Reset simulation parameters"
+              title="Reset simulation"
               aria-label="Reset simulation"
             >
               <RotateCcw size={15} />

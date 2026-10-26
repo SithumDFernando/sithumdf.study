@@ -39,32 +39,7 @@ export default function App() {
         </section>
 
         {/* The Core Live Interactive Visual Simulator */}
-        <section style={{ margin: '1.5rem 0 3.5rem 0', textAlign: 'center' }}>
-          <div style={{ maxWidth: '640px', margin: '0 auto 1.25rem auto' }}>
-            <span style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              color: 'var(--claude-terracotta)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-            }}>
-              Interactive Prototype Preview
-            </span>
-            <h2 style={{
-              fontSize: '1.8rem',
-              fontWeight: 700,
-              color: 'var(--text-primary)',
-              marginTop: '4px',
-              letterSpacing: '-0.02em',
-            }}>
-              Touch, Disturb &amp; Explore the Models
-            </h2>
-            <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)' }}>
-              Here is a glimpse of how future studies will behave. Choose a study mode below, move your cursor across the canvas, or adjust the parameters in real time.
-            </p>
-          </div>
-
+        <section style={{ margin: '1rem 0 3.5rem 0', textAlign: 'center' }}>
           <InteractiveVisualCanvas />
         </section>
 

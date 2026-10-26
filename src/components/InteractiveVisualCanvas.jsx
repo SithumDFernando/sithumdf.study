@@ -28,42 +28,46 @@ const MODE_EQUATIONS = {
   waves: {
     title: 'Wave Harmonics',
     subtitle: 'Superposition & Interference',
+    tag: 'Wave Superposition',
     latex: 'y(x, t) = A_1 \\sin(k_1 x - \\omega_1 t) + A_2 \\sin(k_2 x + \\omega_2 t)',
   },
   gravity: {
     title: 'Orbital Gravity',
     subtitle: 'Keplerian Gravitation',
+    tag: 'Keplerian Orbital Motion',
     latex: 'F = G \\frac{m_1 m_2}{r^2} \\quad \\left(\\mathbf{a} = -\\frac{\\mu}{r^3}\\mathbf{r}\\right)',
   },
   neural: {
     title: 'Neural Network',
     subtitle: 'Synaptic Activation & Flow',
+    tag: 'Synaptic Activation & Flow',
     latex: 'a_j = \\sigma\\left(\\sum_{i} w_{ij} x_i + b_j\\right)',
   },
   field: {
     title: 'Vector Field',
     subtitle: 'Streamlines & Curl Dynamics',
+    tag: 'Vector Streamlines',
     latex: '\\vec{v}(x,y) = \\begin{pmatrix} \\sin(ky) + v_{\\text{curl}} \\\\[2pt] \\cos(kx) \\end{pmatrix}',
   },
 };
 
-function LatexFormula({ tex }) {
+function LatexFormula({ tex, inline = false }) {
   const containerRef = useRef(null);
 
   useEffect(() => {
     if (containerRef.current) {
       try {
         containerRef.current.innerHTML = katex.renderToString(tex, {
-          displayMode: true,
+          displayMode: !inline,
           throwOnError: false,
         });
       } catch (err) {
         containerRef.current.innerText = tex;
       }
     }
-  }, [tex]);
+  }, [tex, inline]);
 
-  return <div ref={containerRef} className="visual-latex-display" />;
+  return <div ref={containerRef} className={inline ? "visual-latex-inline" : "visual-latex-display"} />;
 }
 
 export default function InteractiveVisualCanvas() {
@@ -741,38 +745,8 @@ export default function InteractiveVisualCanvas() {
     drawFormulaTag(ctx, 30, 36, "v⃗(x,y) = ⟨ sin(ky) + v_{curl},  cos(kx) ⟩  [Vector Streamlines]");
   };
 
-  // Helper for drawing HUD formula tag
-  const drawFormulaTag = (ctx, x, y, text) => {
-    // Suppress drawing on-canvas HUD tag on mobile screens (<= 768px).
-    // On mobile screens, equations are rendered in authentic LaTeX in the dedicated footer block below!
-    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
-      return;
-    }
-
-    ctx.save();
-    ctx.font = '12px "JetBrains Mono", monospace';
-    const textWidth = ctx.measureText(text).width;
-    
-    // Background capsule
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
-    ctx.strokeStyle = '#DFD7C9';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.roundRect(x, y - 18, textWidth + 24, 28, 6);
-    ctx.fill();
-    ctx.stroke();
-
-    // Terracotta dot
-    ctx.fillStyle = '#DE5844';
-    ctx.beginPath();
-    ctx.arc(x + 10, y - 4, 3.5, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Text
-    ctx.fillStyle = '#1C1B18';
-    ctx.fillText(text, x + 20, y);
-    ctx.restore();
-  };
+  // Helper for drawing HUD formula tag (superseded by crisp KaTeX HUD overlay)
+  const drawFormulaTag = () => {};
 
   return (
     <div className="visual-lab-container" style={{
@@ -1094,6 +1068,19 @@ export default function InteractiveVisualCanvas() {
           onPointerLeave={handlePointerLeave}
           style={{ display: 'block', width: '100%', touchAction: 'none' }}
         />
+
+        {/* Desktop On-Canvas HUD Formula Capsule (KaTeX LaTeX rendered) */}
+        <div className="canvas-hud-formula-desktop">
+          <span className="canvas-hud-formula-dot" />
+          <div className="canvas-hud-formula-math">
+            <LatexFormula tex={MODE_EQUATIONS[activeMode]?.latex || ''} inline />
+          </div>
+          {MODE_EQUATIONS[activeMode]?.tag && (
+            <span className="canvas-hud-formula-tag">
+              [{MODE_EQUATIONS[activeMode]?.tag}]
+            </span>
+          )}
+        </div>
 
         {/* Live Bottom Telemetry Overlay */}
         <div style={{

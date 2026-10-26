@@ -592,15 +592,10 @@
     flex-shrink: 0;
   }
 
-  .visual-footer-mode-name {
-    font-weight: 700;
-    color: var(--text-primary);
-    white-space: nowrap;
-  }
-
-  .visual-footer-mode-sub {
-    font-size: 0.72rem;
-    color: var(--text-muted);
+  .visual-footer-desc {
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

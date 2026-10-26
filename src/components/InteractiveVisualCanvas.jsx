@@ -343,14 +343,15 @@ export default function InteractiveVisualCanvas() {
       ctx.stroke();
 
       // Render Active Mode
+      const effectiveDt = isPlaying ? dt * speed : 0;
       if (activeMode === 'waves') {
-        renderWaves(ctx, width, height, time, s, intensity, mousePos);
+        renderWaves(ctx, width, height, time, s, intensity, mousePos, isPlaying);
       } else if (activeMode === 'gravity') {
-        renderGravity(ctx, width, height, dt * speed, s, mousePos, intensity);
+        renderGravity(ctx, width, height, effectiveDt, s, mousePos, intensity, isPlaying);
       } else if (activeMode === 'neural') {
-        renderNeural(ctx, width, height, dt * speed, s, mousePos);
+        renderNeural(ctx, width, height, effectiveDt, s, mousePos, isPlaying);
       } else if (activeMode === 'field') {
-        renderField(ctx, width, height, dt * speed, s, mousePos, intensity);
+        renderField(ctx, width, height, effectiveDt, s, mousePos, intensity, isPlaying);
       }
 
       animId = requestAnimationFrame(render);
@@ -361,7 +362,7 @@ export default function InteractiveVisualCanvas() {
   }, [activeMode, isPlaying, speed, intensity, mousePos]);
 
   // --- MODE 1: WAVE HARMONICS & SUPERPOSITION ---
-  const renderWaves = (ctx, w, h, t, s, userIntensity, mPos) => {
+  const renderWaves = (ctx, w, h, t, s, userIntensity, mPos, isPlaying) => {
     const centerY = h * 0.52;
 
     // Center equilibrium axis
@@ -376,15 +377,19 @@ export default function InteractiveVisualCanvas() {
 
     // Update & draw ripples
     s.ripples.forEach((r, idx) => {
-      r.radius += 1.8;
-      r.strength *= 0.96;
+      if (isPlaying) {
+        r.radius += 1.8;
+        r.strength *= 0.96;
+      }
       ctx.strokeStyle = `rgba(222, 88, 68, ${0.4 * r.strength})`;
       ctx.lineWidth = 1.2;
       ctx.beginPath();
       ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
       ctx.stroke();
     });
-    s.ripples = s.ripples.filter(r => r.strength > 0.05);
+    if (isPlaying) {
+      s.ripples = s.ripples.filter(r => r.strength > 0.05);
+    }
 
     // Wave 1: Fundamental Sine (Terracotta)
     const k1 = 0.015;
@@ -482,7 +487,7 @@ export default function InteractiveVisualCanvas() {
   };
 
   // --- MODE 2: GRAVITATIONAL N-BODY ORBITS ---
-  const renderGravity = (ctx, w, h, dt, s, mPos, userIntensity) => {
+  const renderGravity = (ctx, w, h, dt, s, mPos, userIntensity, isPlaying) => {
     // Draw Attractors
     s.attractors.forEach((att) => {
       // Glow rings
@@ -518,24 +523,26 @@ export default function InteractiveVisualCanvas() {
 
     // Update and draw particles
     s.particles.forEach((p) => {
-      // Gravitational force from attractors: F = G * M / r^2
-      effectiveAttractors.forEach((att) => {
-        const dx = att.x - p.x;
-        const dy = att.y - p.y;
-        const distSq = dx * dx + dy * dy + 150; // softening factor
-        const dist = Math.sqrt(distSq);
-        const force = (att.mass * userIntensity) / distSq;
-        p.vx += (dx / dist) * force * dt * 25;
-        p.vy += (dy / dist) * force * dt * 25;
-      });
+      if (isPlaying && dt > 0) {
+        // Gravitational force from attractors: F = G * M / r^2
+        effectiveAttractors.forEach((att) => {
+          const dx = att.x - p.x;
+          const dy = att.y - p.y;
+          const distSq = dx * dx + dy * dy + 150; // softening factor
+          const dist = Math.sqrt(distSq);
+          const force = (att.mass * userIntensity) / distSq;
+          p.vx += (dx / dist) * force * dt * 25;
+          p.vy += (dy / dist) * force * dt * 25;
+        });
 
-      // Update position
-      p.x += p.vx * dt * 30;
-      p.y += p.vy * dt * 30;
+        // Update position
+        p.x += p.vx * dt * 30;
+        p.y += p.vy * dt * 30;
 
-      // History trail
-      p.history.push({ x: p.x, y: p.y });
-      if (p.history.length > 12) p.history.shift();
+        // History trail
+        p.history.push({ x: p.x, y: p.y });
+        if (p.history.length > 12) p.history.shift();
+      }
 
       // Draw Orbit Trail
       if (p.history.length > 2) {
@@ -560,20 +567,22 @@ export default function InteractiveVisualCanvas() {
   };
 
   // --- MODE 3: NEURAL SYNAPSE NETWORK ---
-  const renderNeural = (ctx, w, h, dt, s, mPos) => {
+  const renderNeural = (ctx, w, h, dt, s, mPos, isPlaying) => {
     const nodes = s.nodes;
 
-    // Update node positions
-    nodes.forEach(node => {
-      node.x += node.vx;
-      node.y += node.vy;
+    // Update node positions only when playing
+    if (isPlaying) {
+      nodes.forEach(node => {
+        node.x += node.vx;
+        node.y += node.vy;
 
-      if (node.x < 30 || node.x > w - 30) node.vx *= -1;
-      if (node.y < 30 || node.y > h - 30) node.vy *= -1;
+        if (node.x < 30 || node.x > w - 30) node.vx *= -1;
+        if (node.y < 30 || node.y > h - 30) node.vy *= -1;
 
-      // Decay charge
-      node.charge *= 0.96;
-    });
+        // Decay charge
+        node.charge *= 0.96;
+      });
+    }
 
     // Draw Synaptic Connections
     const maxDist = 95;
@@ -601,7 +610,9 @@ export default function InteractiveVisualCanvas() {
 
     // Draw travelling action potentials (pulses)
     s.pulses.forEach(pulse => {
-      pulse.progress += pulse.speed;
+      if (isPlaying) {
+        pulse.progress += pulse.speed;
+      }
       const px = pulse.from.x + (pulse.to.x - pulse.from.x) * pulse.progress;
       const py = pulse.from.y + (pulse.to.y - pulse.from.y) * pulse.progress;
 
@@ -610,10 +621,12 @@ export default function InteractiveVisualCanvas() {
       ctx.arc(px, py, 2.5, 0, Math.PI * 2);
       ctx.fill();
     });
-    s.pulses = s.pulses.filter(p => p.progress < 1.0);
+    if (isPlaying) {
+      s.pulses = s.pulses.filter(p => p.progress < 1.0);
+    }
 
-    // Random spontaneous pulse emission
-    if (Math.random() > 0.88 && s.pulses.length < 24) {
+    // Random spontaneous pulse emission only when playing
+    if (isPlaying && Math.random() > 0.88 && s.pulses.length < 24) {
       const idx1 = Math.floor(Math.random() * nodes.length);
       const n1 = nodes[idx1];
       for (let k = 0; k < nodes.length; k++) {
@@ -660,7 +673,7 @@ export default function InteractiveVisualCanvas() {
   };
 
   // --- MODE 4: VECTOR FIELD & DYNAMICS ---
-  const renderField = (ctx, w, h, dt, s, mPos, userIntensity) => {
+  const renderField = (ctx, w, h, dt, s, mPos, userIntensity, isPlaying) => {
     // Draw vector field arrows grid
     const spacing = 36;
     for (let x = spacing; x < w; x += spacing) {
@@ -701,34 +714,36 @@ export default function InteractiveVisualCanvas() {
 
     // Update & draw tracer particles
     s.particles.forEach(p => {
-      p.age++;
-      if (p.age > p.maxAge || p.x < 0 || p.x > w || p.y < 0 || p.y > h) {
-        p.x = Math.random() * w;
-        p.y = Math.random() * h;
-        p.age = 0;
-        p.history = [];
-      }
-
-      let vx = Math.sin((p.y * 0.015) + s.time * 0.8);
-      let vy = Math.cos((p.x * 0.015) + s.time * 0.8);
-
-      if (mPos.active) {
-        const dx = p.x - mPos.x;
-        const dy = p.y - mPos.y;
-        const dist = Math.hypot(dx, dy);
-        if (dist < 140) {
-          const angle = Math.atan2(dy, dx) + Math.PI / 2;
-          const factor = (1 - dist / 140) * 2.2 * userIntensity;
-          vx += Math.cos(angle) * factor;
-          vy += Math.sin(angle) * factor;
+      if (isPlaying && dt > 0) {
+        p.age++;
+        if (p.age > p.maxAge || p.x < 0 || p.x > w || p.y < 0 || p.y > h) {
+          p.x = Math.random() * w;
+          p.y = Math.random() * h;
+          p.age = 0;
+          p.history = [];
         }
+
+        let vx = Math.sin((p.y * 0.015) + s.time * 0.8);
+        let vy = Math.cos((p.x * 0.015) + s.time * 0.8);
+
+        if (mPos.active) {
+          const dx = p.x - mPos.x;
+          const dy = p.y - mPos.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < 140) {
+            const angle = Math.atan2(dy, dx) + Math.PI / 2;
+            const factor = (1 - dist / 140) * 2.2 * userIntensity;
+            vx += Math.cos(angle) * factor;
+            vy += Math.sin(angle) * factor;
+          }
+        }
+
+        p.x += vx * dt * 50;
+        p.y += vy * dt * 50;
+
+        p.history.push({ x: p.x, y: p.y });
+        if (p.history.length > 8) p.history.shift();
       }
-
-      p.x += vx * dt * 50;
-      p.y += vy * dt * 50;
-
-      p.history.push({ x: p.x, y: p.y });
-      if (p.history.length > 8) p.history.shift();
 
       if (p.history.length > 1) {
         ctx.beginPath();
@@ -1125,11 +1140,8 @@ export default function InteractiveVisualCanvas() {
         <div className="visual-footer-top">
           <div className="visual-footer-mode-tag">
             <span className="visual-footer-indicator" />
-            <span className="visual-footer-mode-name">
-              {MODE_EQUATIONS[activeMode]?.title}
-            </span>
-            <span className="visual-footer-mode-sub">
-              • {MODE_EQUATIONS[activeMode]?.subtitle}
+            <span className="visual-footer-desc">
+              {MODE_EQUATIONS[activeMode]?.subtitle}
             </span>
           </div>
           <div className="visual-footer-touch-badge">

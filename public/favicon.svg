@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges">
+  <!-- Claude Code Pixel Mascot in Terracotta -->
+  <path fill="#DE5844" d="
+    M3 2h10v1h1v1h1v6h-2v2h-1v2h-1v-2h-1v-2H6v2H5v2H4v-2H3v-2H1V4h1V3h1V2z
+  " />
+  <!-- Eyes -->
+  <rect x="5" y="5" width="1.5" height="3" fill="#1A1915" />
+  <rect x="9.5" y="5" width="1.5" height="3" fill="#1A1915" />
+</svg>

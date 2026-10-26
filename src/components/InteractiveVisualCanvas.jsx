@@ -10,8 +10,61 @@ import {
   Sparkles, 
   Sliders, 
   Info,
-  Maximize2
+  Maximize2,
+  ChevronDown,
+  Check
 } from 'lucide-react';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
+
+const MODES = [
+  { id: 'waves', label: 'Wave Harmonics', icon: Waves },
+  { id: 'gravity', label: 'Orbital Gravity', icon: Orbit },
+  { id: 'neural', label: 'Neural Network', icon: Network },
+  { id: 'field', label: 'Vector Field', icon: Compass },
+];
+
+const MODE_EQUATIONS = {
+  waves: {
+    title: 'Wave Harmonics',
+    subtitle: 'Superposition & Interference',
+    latex: 'y(x, t) = A_1 \\sin(k_1 x - \\omega_1 t) + A_2 \\sin(k_2 x + \\omega_2 t)',
+  },
+  gravity: {
+    title: 'Orbital Gravity',
+    subtitle: 'Keplerian Gravitation',
+    latex: 'F = G \\frac{m_1 m_2}{r^2} \\quad \\left(\\mathbf{a} = -\\frac{\\mu}{r^3}\\mathbf{r}\\right)',
+  },
+  neural: {
+    title: 'Neural Network',
+    subtitle: 'Synaptic Activation & Flow',
+    latex: 'a_j = \\sigma\\left(\\sum_{i} w_{ij} x_i + b_j\\right)',
+  },
+  field: {
+    title: 'Vector Field',
+    subtitle: 'Streamlines & Curl Dynamics',
+    latex: '\\vec{v}(x,y) = \\begin{pmatrix} \\sin(ky) + v_{\\text{curl}} \\\\[2pt] \\cos(kx) \\end{pmatrix}',
+  },
+};
+
+function LatexFormula({ tex }) {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      try {
+        containerRef.current.innerHTML = katex.renderToString(tex, {
+          displayMode: true,
+          throwOnError: false,
+        });
+      } catch (err) {
+        containerRef.current.innerText = tex;
+      }
+    }
+  }, [tex]);
+
+  return <div ref={containerRef} className="visual-latex-display" />;
+}
 
 export default function InteractiveVisualCanvas() {
   const canvasRef = useRef(null);
@@ -20,6 +73,22 @@ export default function InteractiveVisualCanvas() {
   // Modes: 'waves' | 'gravity' | 'neural' | 'field'
   const [activeMode, setActiveMode] = useState('waves');
   const [isPlaying, setIsPlaying] = useState(true);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close custom dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('pointerdown', handleClickOutside);
+    return () => document.removeEventListener('pointerdown', handleClickOutside);
+  }, []);
+
+  const activeModeObj = MODES.find((m) => m.id === activeMode) || MODES[0];
+  const ActiveIcon = activeModeObj.icon;
   
   // Interactive Controls
   const [speed, setSpeed] = useState(1.2);
@@ -674,6 +743,12 @@ export default function InteractiveVisualCanvas() {
 
   // Helper for drawing HUD formula tag
   const drawFormulaTag = (ctx, x, y, text) => {
+    // Suppress drawing on-canvas HUD tag on mobile screens (<= 768px).
+    // On mobile screens, equations are rendered in authentic LaTeX in the dedicated footer block below!
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+      return;
+    }
+
     ctx.save();
     ctx.font = '12px "JetBrains Mono", monospace';
     const textWidth = ctx.measureText(text).width;
@@ -709,8 +784,8 @@ export default function InteractiveVisualCanvas() {
       position: 'relative',
       margin: '2rem 0',
     }}>
-      {/* Simulation Header & Mode Tabs */}
-      <div className="visual-lab-toolbar">
+      {/* Simulation Header & Mode Tabs (Desktop Version: untouched) */}
+      <div className="visual-lab-toolbar visual-lab-toolbar-desktop">
         {/* Left: Title & Live indicator */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
           <div style={{
@@ -848,6 +923,98 @@ export default function InteractiveVisualCanvas() {
         </div>
       </div>
 
+      {/* Mobile Simulation Toolbar (visible only on <= 768px) */}
+      <div className="visual-lab-toolbar-mobile">
+        {/* Row 1: Single line title without bullet point */}
+        <div className="visual-mobile-header-row">
+          <span className="visual-mobile-title">
+            Interactive Study Visualizer
+          </span>
+        </div>
+
+        {/* Row 2: Mode Dropdown + Quick Actions (Exact icons & text as desktop, no colored emojis) */}
+        <div className="visual-mobile-controls-row">
+          <div className="visual-mobile-dropdown-wrap" ref={dropdownRef}>
+            <button
+              type="button"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="visual-mobile-dropdown-btn"
+              aria-expanded={isDropdownOpen}
+              aria-label="Select simulation mode"
+            >
+              <div className="visual-mobile-dropdown-current">
+                <ActiveIcon size={15} className="visual-mobile-dropdown-current-icon" />
+                <span className="visual-mobile-dropdown-current-label">
+                  {activeModeObj.label}
+                </span>
+              </div>
+              <ChevronDown
+                size={14}
+                className={`visual-mobile-select-arrow ${isDropdownOpen ? 'open' : ''}`}
+              />
+            </button>
+
+            {isDropdownOpen && (
+              <div className="visual-mobile-dropdown-menu">
+                {MODES.map((mode) => {
+                  const Icon = mode.icon;
+                  const isSelected = activeMode === mode.id;
+                  return (
+                    <button
+                      key={mode.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveMode(mode.id);
+                        setIsDropdownOpen(false);
+                      }}
+                      className={`visual-mobile-dropdown-item ${isSelected ? 'selected' : ''}`}
+                    >
+                      <Icon size={15} className="dropdown-item-icon" />
+                      <span className="dropdown-item-label">{mode.label}</span>
+                      {isSelected && (
+                        <Check size={14} className="dropdown-item-check" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div className="visual-mobile-actions">
+            <button
+              onClick={() => setIsPlaying(!isPlaying)}
+              className="visual-mobile-action-btn"
+              title={isPlaying ? 'Pause simulation' : 'Play simulation'}
+              aria-label={isPlaying ? 'Pause' : 'Play'}
+            >
+              {isPlaying ? <Pause size={15} /> : <Play size={15} />}
+            </button>
+
+            <button
+              onClick={() => {
+                const canvas = canvasRef.current;
+                if (canvas) initSimulation(activeMode, canvas.width, canvas.height);
+              }}
+              className="visual-mobile-action-btn"
+              title="Reset simulation parameters"
+              aria-label="Reset simulation"
+            >
+              <RotateCcw size={15} />
+            </button>
+
+            <button
+              onClick={() => setShowControls(!showControls)}
+              className={`visual-mobile-action-btn ${showControls ? 'active' : ''}`}
+              title="Toggle parameter sliders"
+              aria-label="Toggle parameter sliders"
+            >
+              <Sliders size={15} />
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Optional Tuning Sliders Drawer */}
       {showControls && (
         <div style={{
@@ -963,6 +1130,28 @@ export default function InteractiveVisualCanvas() {
             {activeMode === 'neural' && 'Synapses'}
             {activeMode === 'field' && 'Vortices'}
           </div>
+        </div>
+      </div>
+
+      {/* Mobile-Only Interactive Equation Footer with LaTeX & Touch Guide */}
+      <div className="visual-lab-footer-mobile">
+        <div className="visual-footer-top">
+          <div className="visual-footer-mode-tag">
+            <span className="visual-footer-indicator" />
+            <span className="visual-footer-mode-name">
+              {MODE_EQUATIONS[activeMode]?.title}
+            </span>
+            <span className="visual-footer-mode-sub">
+              • {MODE_EQUATIONS[activeMode]?.subtitle}
+            </span>
+          </div>
+          <div className="visual-footer-touch-badge">
+            <span>Touch &amp; Drag</span>
+          </div>
+        </div>
+
+        <div className="visual-footer-latex-card">
+          <LatexFormula tex={MODE_EQUATIONS[activeMode]?.latex || ''} />
         </div>
       </div>
     </div>

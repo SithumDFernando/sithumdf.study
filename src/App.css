@@ -1,18 +1,100 @@
-/* App-specific styles and responsive layouts */
+/* App-specific styles and responsive layouts for sithumdf.study */
 
 .app-container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow-x: hidden;
 }
 
+/* Header Styles */
+.site-header {
+  width: 100%;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(250, 248, 245, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.brand-title {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.brand-badge {
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--claude-terracotta-subtle);
+  color: var(--claude-terracotta);
+  font-weight: 700;
+}
+
+.brand-subtitle {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  line-height: 1.2;
+}
+
+.nav-status-pill {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  background: var(--bg-muted);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+.nav-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+
+.nav-action-btn:hover {
+  border-color: var(--claude-terracotta);
+  color: var(--claude-terracotta);
+}
+
+/* Main Content */
 .main-content {
   flex: 1;
   max-width: 1100px;
   width: 100%;
   margin: 0 auto;
-  padding: 2.5rem 1.5rem;
+  padding: 2.5rem 1.25rem;
 }
 
 /* Hero Badge */
@@ -26,7 +108,7 @@
   border: 1px solid var(--claude-terracotta-border);
   color: var(--claude-terracotta);
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   margin-bottom: 1.25rem;
@@ -44,7 +126,7 @@
 
 /* Headings */
 .hero-title {
-  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  font-size: clamp(2rem, 6vw, 3.8rem);
   font-weight: 800;
   line-height: 1.15;
   color: var(--text-primary);
@@ -62,14 +144,83 @@
 }
 
 .hero-subtitle {
-  font-size: clamp(1rem, 2vw, 1.2rem);
+  font-size: clamp(0.95rem, 2.5vw, 1.15rem);
   color: var(--text-secondary);
   line-height: 1.6;
   max-width: 660px;
-  margin: 0 auto 2rem auto;
+  margin: 0 auto;
 }
 
-/* Comparison / Philosophy Card */
+/* Interactive Mascot 3D Flip Animation */
+@keyframes sprite3DFlip {
+  0% {
+    transform: translateY(0) scale(1) rotateY(0deg);
+  }
+  25% {
+    transform: translateY(-10px) scale(1.18) rotateY(90deg);
+  }
+  50% {
+    transform: translateY(-14px) scale(1.24) rotateY(180deg);
+  }
+  75% {
+    transform: translateY(-8px) scale(1.18) rotateY(270deg);
+  }
+  100% {
+    transform: translateY(0) scale(1) rotateY(360deg);
+  }
+}
+
+.sprite-idle {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.interactive-sprite-btn {
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.interactive-sprite-btn:hover .sprite-idle {
+  transform: scale(1.12) translateY(-2px);
+}
+
+.interactive-sprite-btn:active .sprite-idle {
+  transform: scale(0.95) translateY(0);
+}
+
+.sprite-flipping {
+  animation: sprite3DFlip 0.58s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* Canvas Simulation Responsive Layout */
+.visual-lab-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  background: var(--bg-muted);
+  border-bottom: 1px solid var(--border-subtle);
+  gap: 0.75rem;
+}
+
+.visual-lab-tabs-scroll {
+  display: flex;
+  background: var(--bg-card);
+  padding: 3px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  gap: 2px;
+  overflow-x: auto;
+  max-width: 100%;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.visual-lab-tabs-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Philosophy Section */
 .philosophy-banner {
   background: var(--bg-card);
   border: 1px solid var(--border-default);
@@ -79,16 +230,8 @@
   box-shadow: var(--shadow-sm);
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  gap: 1.5rem;
   text-align: left;
-}
-
-@media (max-width: 768px) {
-  .philosophy-banner {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    padding: 1.5rem;
-  }
 }
 
 .philosophy-col {
@@ -106,8 +249,67 @@
   border: 1px solid var(--claude-terracotta-border);
 }
 
+/* Footer Social Buttons */
+.footer-social-btn:hover {
+  border-color: var(--claude-terracotta) !important;
+  color: var(--claude-terracotta) !important;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* Media Queries for Mobile Responsiveness */
 @media (min-width: 640px) {
   .nav-status-pill {
     display: inline-flex !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1.5rem 1rem;
+  }
+
+  .philosophy-banner {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1.25rem;
+    margin: 2.5rem 0;
+  }
+
+  .visual-lab-toolbar {
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-inner {
+    padding: 0 0.85rem;
+  }
+
+  .brand-subtitle {
+    display: none;
+  }
+
+  .brand-title {
+    font-size: 1.05rem;
+  }
+
+  .nav-action-btn {
+    padding: 6px 10px;
+    font-size: 0.76rem;
+  }
+
+  .hero-badge {
+    padding: 5px 10px;
+    font-size: 0.72rem;
+  }
+
+  .canvas-hud-coordinates {
+    display: none !important;
+  }
+
+  .canvas-hud-divider {
+    display: none !important;
   }
 }

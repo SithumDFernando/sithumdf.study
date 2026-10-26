@@ -118,7 +118,8 @@ export default function InteractiveVisualCanvas() {
       const rect = container.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const width = rect.width;
-      const height = Math.max(380, Math.min(rect.width * 0.52, 480));
+      // Responsive height scaling: compact on mobile, spacious on desktop
+      const height = Math.max(260, Math.min(rect.width * 0.54, 460));
 
       canvas.width = width * dpr;
       canvas.height = height * dpr;
@@ -709,16 +710,7 @@ export default function InteractiveVisualCanvas() {
       margin: '2rem 0',
     }}>
       {/* Simulation Header & Mode Tabs */}
-      <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0.85rem 1.25rem',
-        background: 'var(--bg-muted)',
-        borderBottom: '1px solid var(--border-subtle)',
-        gap: '0.75rem',
-      }}>
+      <div className="visual-lab-toolbar">
         {/* Left: Title & Live indicator */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
           <div style={{
@@ -747,20 +739,14 @@ export default function InteractiveVisualCanvas() {
             color: 'var(--claude-terracotta)',
             border: '1px solid var(--claude-terracotta-border)',
             fontWeight: 600,
+            whiteSpace: 'nowrap',
           }}>
-            Touch & Drag to Interact
+            Touch &amp; Drag
           </span>
         </div>
 
         {/* Center: Mode Selectors */}
-        <div style={{ 
-          display: 'flex', 
-          background: 'var(--bg-card)', 
-          padding: '3px', 
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--border-subtle)',
-          gap: '2px',
-        }}>
+        <div className="visual-lab-tabs-scroll">
           {[
             { id: 'waves', label: 'Wave Harmonics', icon: Waves },
             { id: 'gravity', label: 'Orbital Gravity', icon: Orbit },
@@ -937,7 +923,7 @@ export default function InteractiveVisualCanvas() {
           onPointerMove={handlePointerMove}
           onPointerDown={handlePointerDown}
           onPointerLeave={handlePointerLeave}
-          style={{ display: 'block', width: '100%' }}
+          style={{ display: 'block', width: '100%', touchAction: 'none' }}
         />
 
         {/* Live Bottom Telemetry Overlay */}
@@ -947,32 +933,33 @@ export default function InteractiveVisualCanvas() {
           right: 14,
           display: 'flex',
           alignItems: 'center',
-          gap: '12px',
-          background: 'rgba(255, 255, 255, 0.88)',
+          gap: '10px',
+          background: 'rgba(255, 255, 255, 0.92)',
           backdropFilter: 'blur(8px)',
           border: '1px solid var(--border-subtle)',
           borderRadius: 'var(--radius-md)',
-          padding: '4px 12px',
+          padding: '4px 10px',
           fontFamily: 'var(--font-mono)',
           fontSize: '0.72rem',
           color: 'var(--text-secondary)',
           boxShadow: 'var(--shadow-sm)',
+          maxWidth: 'calc(100% - 28px)',
         }}>
           <div>
             <span style={{ color: 'var(--text-muted)' }}>FPS: </span>
             <span style={{ fontWeight: 600, color: fps > 45 ? '#15803D' : '#DE5844' }}>{fps}</span>
           </div>
-          <div style={{ width: 1, height: 12, background: 'var(--border-default)' }} />
-          <div>
-            <span style={{ color: 'var(--text-muted)' }}>CURSOR: </span>
-            <span>{mousePos.active ? `(${mousePos.x}, ${mousePos.y})` : 'Hover to disturb'}</span>
+          <div className="canvas-hud-divider" style={{ width: 1, height: 12, background: 'var(--border-default)' }} />
+          <div className="canvas-hud-coordinates">
+            <span style={{ color: 'var(--text-muted)' }}>POS: </span>
+            <span>{mousePos.active ? `(${mousePos.x}, ${mousePos.y})` : 'idle'}</span>
           </div>
           <div style={{ width: 1, height: 12, background: 'var(--border-default)' }} />
-          <div style={{ color: 'var(--claude-terracotta)', fontWeight: 600 }}>
-            {activeMode === 'waves' && 'Harmonic Synthesis'}
-            {activeMode === 'gravity' && 'Click to add mass'}
-            {activeMode === 'neural' && 'Hover to ignite'}
-            {activeMode === 'field' && 'Dynamic Vortices'}
+          <div style={{ color: 'var(--claude-terracotta)', fontWeight: 600, whiteSpace: 'nowrap' }}>
+            {activeMode === 'waves' && 'Harmonics'}
+            {activeMode === 'gravity' && 'Orbits'}
+            {activeMode === 'neural' && 'Synapses'}
+            {activeMode === 'field' && 'Vortices'}
           </div>
         </div>
       </div>
